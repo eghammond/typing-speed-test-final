@@ -2,6 +2,8 @@
 
 A Monkeytype-style typing speed test with login and persisted per-user stats.
 
+**Live:** https://frontend-ashy-one-89.vercel.app (backend: https://typing-speed-test-backend-xt1x.onrender.com)
+
 ```
 ├── backend/     FastAPI + PostgreSQL REST API (auth, results, stats)
 └── frontend/    Vite + TypeScript single-page app
@@ -37,10 +39,17 @@ Open `http://localhost:5173`.
 
 ## Deployment
 
+Currently deployed on Render (backend) + Vercel (frontend), both free tiers:
+
 1. Push this repo to GitHub.
-2. **Railway** (backend): new service with root directory `backend/`. Attach a Postgres plugin (sets `DATABASE_URL` automatically), set `SECRET_KEY`. Deploy and note the public URL.
-3. **Vercel** (frontend): new project with root directory `frontend/`. Set env var `VITE_API_URL` to the Railway URL. Deploy and note the public URL.
-4. Back in Railway, set `CORS_ORIGINS` to the Vercel URL (comma-separate with `http://localhost:5173` to keep local dev working) and redeploy.
+2. **Render** (backend): create a Postgres instance, then a Web Service with root directory `backend/`, build command `pip install -r requirements.txt`, start command `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, and a **health check path of `/health`** (without this, Render's free-tier edge routing intermittently 404s even while the app is healthy). Env vars: `SECRET_KEY` (random), `DATABASE_URL` (the Postgres instance's internal connection string), `CORS_ORIGINS` (start with `http://localhost:5173`).
+3. **Vercel** (frontend): new project with root directory `frontend/`. Set env var `VITE_API_URL` to the Render URL. Deploy.
+4. Back on Render, update `CORS_ORIGINS` to include the Vercel URL and redeploy (env var changes need an explicit redeploy, not just a restart, to take effect).
+
+**Known free-tier caveats:**
+- Render's free Postgres expires 30 days after creation — back up or upgrade before then.
+- Render's free web service spins down after inactivity; the first request after idle can take ~30-50s.
+- Railway was the original target (see `backend/Procfile`) but requires a paid plan once the trial expires; the app runs unmodified on either.
 
 ## API overview
 
