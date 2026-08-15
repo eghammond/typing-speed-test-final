@@ -99,14 +99,33 @@ export function renderTestView(container: HTMLElement): void {
     const cursor = engine.getCursor();
     let html = "";
     for (let i = 0; i < target.length; i++) {
-      const ch = target[i] === " " ? "&nbsp;" : escapeHtml(target[i]);
+      const ch = target[i] === " " ? " " : escapeHtml(target[i]);
       const cls = statuses[i];
       const cursorCls = i === cursor ? " cursor" : "";
       html += `<span class="char ${cls}${cursorCls}">${ch}</span>`;
     }
     textDisplay.innerHTML = html;
-    const cursorEl = textDisplay.querySelector(".cursor");
-    cursorEl?.scrollIntoView({ block: "nearest" });
+    scrollToKeepLookahead();
+  }
+
+  /**
+   * Snaps scroll to line boundaries so the cursor's line always sits at the
+   * top of the box, keeping the next couple of lines visible ahead of it
+   * (plain scrollIntoView only reveals up to the cursor, with no lookahead).
+   */
+  function scrollToKeepLookahead(): void {
+    const cursorEl = textDisplay.querySelector<HTMLElement>(".cursor");
+    if (!cursorEl) return;
+    const lineHeight = parseFloat(getComputedStyle(textDisplay).lineHeight);
+    if (!lineHeight) return;
+    const containerTop = textDisplay.getBoundingClientRect().top;
+    const cursorTop = cursorEl.getBoundingClientRect().top;
+    const relativeTop = cursorTop - containerTop + textDisplay.scrollTop;
+    const lineIndex = Math.round(relativeTop / lineHeight);
+    const desiredScrollTop = lineIndex * lineHeight;
+    if (desiredScrollTop !== textDisplay.scrollTop) {
+      textDisplay.scrollTop = desiredScrollTop;
+    }
   }
 
   function updateStatDisplay(stats: EngineStats): void {
