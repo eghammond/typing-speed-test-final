@@ -63,3 +63,7 @@ Currently deployed on Render (backend) + Vercel (frontend), both free tiers:
 | GET    | `/results/stats`  | Yes  | Aggregate stats (avg/best WPM, accuracy). |
 
 Auth endpoints are rate limited (5/min); `/results` write is 10/min, reads 5/min.
+
+## Acknowledgements
+
+Built by [Claude Code](https://claude.com/claude-code), drawing on two earlier repos: a prototype frontend ([typing-speed-test](https://github.com/eghammond/typing-speed-test)) and a backend built with Claude's guidance ([typing-stats-tracker-backend](https://github.com/eghammond/typing-stats-tracker-backend)).
